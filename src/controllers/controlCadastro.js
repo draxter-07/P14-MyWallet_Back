@@ -10,15 +10,23 @@ export function postCadastro(req, db){
     const [valuePassword, errorPassword] = joi.string().min(3).required();
     if (errorName == undefined && errorEmail == undefined && errorPassword == undefined){
         // Verifica se o nome já está na base
+        function right(){
+            db.collection("Users").insertOne({name: name, email: email, password: password});
+            return({status: 201, message: ""});
+        }
         db.collection("Users").find().toArray().then(users =>{
-            for(let a = 0; a < users.length; a++){
-                if (users[a].email == email){
-                    return({status: 409, message: "O email preenchido já está cadastrado"});
-                }
-                else if(a == users.length - 1 && users[a].email == email){
-                    // Salva na database
-                    db.collection("Users").insertOne({name: name, email: email, password: password});
-                    return({status: 201, message: ""});
+            if (users.length == 0){
+                right();
+            }
+            else{
+                for(let a = 0; a < users.length; a++){
+                    if (users[a].email == email){
+                        return({status: 409, message: "O email preenchido já está cadastrado"});
+                    }
+                    else if(a == users.length - 1 && users[a].email == email){
+                        // Salva na database
+                        right();
+                    }
                 }
             }
         })
