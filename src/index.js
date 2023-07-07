@@ -3,6 +3,7 @@ import cors from 'cors'
 import { MongoClient } from 'mongodb'
 import dotenv from "dotenv"
 import { postCadastro } from "./controllers/controlCadastro.js"
+import { postLogin } from "./controllers/controlLogin.js"
 
 dotenv.config();
 
@@ -16,13 +17,13 @@ var db;
 mongoClient.connect().then(db = mongoClient.db());
 
 app.post("/cadastro", (req, res) => {
-    r = postCadastro(req, db);
+    const r = postCadastro(req, db);
     res.status(r.status);
     res.send(r.message);
 });
 
 app.post("/login", (req, res) => {
-    r = postLogin(req, db);
+    const r = postLogin(req, db);
     res.status(r.status);
     res.send(r.message);
 })

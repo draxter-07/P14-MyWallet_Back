@@ -1,6 +1,7 @@
 import joi from "joi"
 
-export function postCadastro(req, db){
+export function postLogin(req, db){
+    return({status: 404, message: "oi"});
     const body = req.body;
     const email = body.email;
     const password = body.password;
