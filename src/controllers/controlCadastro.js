@@ -1,6 +1,7 @@
 import joi from "joi"
 import { MongoClient } from 'mongodb'
 import dotenv from "dotenv"
+import bcrypt from "bcrypt"
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ export function postCadastro(req, res){
     if (error == undefined){
         // Verifica se o nome já está na base
         function right(){
+            body.password = bcrypt.hashSync(body.password, 10);
             db.collection("Users").insertOne({id: body, transactions: {}});
             res.status(201).send("token").end();
         }

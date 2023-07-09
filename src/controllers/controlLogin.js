@@ -1,6 +1,7 @@
 import joi from "joi"
 import { MongoClient } from 'mongodb'
 import dotenv from "dotenv"
+import bcrypt from "bcrypt"
 
 dotenv.config();
 
@@ -23,7 +24,7 @@ export function postLogin(req, res){
                 if (users.length > 0){
                     for(let a = 0; a < users.length; a++){
                         if (users[a].id.email == email){
-                            if (users[a].id.password == password){
+                            if (bcrypt.compareSync(password, users[a].id.password)){
                                 res.status(200).send("token").end();
                             }
                             else{
