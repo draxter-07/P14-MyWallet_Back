@@ -43,6 +43,6 @@ export function postCadastro(req, res){
         })
     }
     else{
-        res.status(402).send("Os campos não foram preenchidos corretamente").end();
+        res.status(422).send("Os campos não foram preenchidos corretamente").end();
     }
 }
