@@ -24,7 +24,7 @@ export function postCadastro(req, res){
         // Verifica se o nome já está na base
         function right(){
             body.password = bcrypt.hashSync(body.password, 10);
-            db.collection("Users").insertOne({id: body, transactions: {}});
+            db.collection("Users").insertOne({id: body, transactions: []});
             res.status(201).send("token").end();
         }
         db.collection("Users").find().toArray().then(users =>{

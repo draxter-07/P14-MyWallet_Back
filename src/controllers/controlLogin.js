@@ -2,6 +2,7 @@ import joi from "joi"
 import { MongoClient } from 'mongodb'
 import dotenv from "dotenv"
 import bcrypt from "bcrypt"
+import { v4 as uuid } from 'uuid';
 
 dotenv.config();
 
@@ -25,7 +26,9 @@ export function postLogin(req, res){
                     for(let a = 0; a < users.length; a++){
                         if (users[a].id.email == email){
                             if (bcrypt.compareSync(password, users[a].id.password)){
-                                res.status(200).send("token").end();
+                                const token = uuid();
+                                db.collection("Sessions").insertOne({token: token, userId: users[a]._id});
+                                res.status(200).send(token).end();
                             }
                             else{
                                 res.status(401).send("A senha está incorreta").end();
