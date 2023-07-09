@@ -24,7 +24,7 @@ export function postLogin(req, res){
                     for(let a = 0; a < users.length; a++){
                         if (users[a].id.email == email){
                             if (users[a].id.password == password){
-                                res.status(201).send("token").end();
+                                res.status(200).send("token").end();
                             }
                             else{
                                 res.status(401).send("A senha está incorreta").end();
