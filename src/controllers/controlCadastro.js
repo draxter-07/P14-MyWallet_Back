@@ -1,18 +1,29 @@
 import joi from "joi"
+import { MongoClient } from 'mongodb'
+import dotenv from "dotenv"
 
-export function postCadastro(req, db){
+dotenv.config();
+
+const mongoClient = new MongoClient(process.env.DATABASE_URL);
+var db;
+mongoClient.connect().then(db = mongoClient.db());
+
+
+export function postCadastro(req, res){
     const body = req.body;
     const name = body.name;
     const email = body.email;
     const password = body.password;
-    const [valueName, errorName] = joi.string().required();
-    const [valueEmail, errorEmail] = joi.email().required();
-    const [valuePassword, errorPassword] = joi.string().min(3).required();
-    if (errorName == undefined && errorEmail == undefined && errorPassword == undefined){
+    const joiName = joi.string().required();
+    const joiEmail = joi.string().email().required();
+    const joiPassword = joi.string().min(3).required();
+    const joiObject = joi.object({name: joiName, email: joiEmail, password:  joiPassword}).required();
+    const { value, error } = joiObject.validate(body);
+    if (error == undefined){
         // Verifica se o nome já está na base
         function right(){
-            db.collection("Users").insertOne({name: name, email: email, password: password});
-            return({status: 201, message: ""});
+            db.collection("Users").insertOne({id: body, transactions: {}});
+            res.status(201).send("token").end();
         }
         db.collection("Users").find().toArray().then(users =>{
             if (users.length == 0){
@@ -20,10 +31,10 @@ export function postCadastro(req, db){
             }
             else{
                 for(let a = 0; a < users.length; a++){
-                    if (users[a].email == email){
-                        return({status: 409, message: "O email preenchido já está cadastrado"});
+                    if (users[a].id.email == email){
+                        res.status(409).send("O email já está cadastrado").end();
                     }
-                    else if(a == users.length - 1 && users[a].email == email){
+                    else if(a == users.length - 1 && users[a].id.email != email){
                         // Salva na database
                         right();
                     }
@@ -31,25 +42,7 @@ export function postCadastro(req, db){
             }
         })
     }
-    else if (errorName != undefined && errorEmail == undefined && errorPassword == undefined){
-        return({status: 422, message: "O campo Nome não foi preenchido corretamente"});
-    }
-    else if (errorName == undefined && errorEmail != undefined && errorPassword == undefined){
-        return({status: 422, message: "O campo Email não foi preenchido corretamente"});
-    }
-    else if (errorName == undefined && errorEmail == undefined && errorPassword != undefined){
-        return({status: 422, message: "O campo Senha não foi preenchido corretamente"});
-    }
-    else if (errorName != undefined && errorEmail != undefined && errorPassword == undefined){
-        return({status: 422, message: "O campo Nome e Email não foram preenchido corretamente"});
-    }
-    else if (errorName != undefined && errorEmail == undefined && errorPassword != undefined){
-        return({status: 422, message: "O campo Nome e Senha não foram preenchido corretamente"});
-    }
-    else if (errorName == undefined && errorEmail != undefined && errorPassword != undefined){
-        return({status: 422, message: "O campo Email e Senha não foram preenchido corretamente"});
-    }
-    else if (errorName != undefined && errorEmail != undefined && errorPassword != undefined){
-        return({status: 422, message: "Os campos não foram preenchido corretamente"});
+    else{
+        res.status(402).send("Os campos não foram preenchidos corretamente").end();
     }
 }
